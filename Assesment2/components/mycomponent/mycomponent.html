@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+    	*:not(i) {
+            font-family: "Poppins", sans-serif;
+        }
+        .result{
+            font-family: "Poppins", sans-serif;
+        	padding: 1px 20px 0 20px;
+        	background-color: #ffffff;
+            width: 100vmin;
+            border-radius: 10px;
+        }
+        .result h3 {
+            font-size: 40px;
+            color: #1f194c;
+        }
+        .result .word {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 80px;
+        }
+        .result .type {
+            display: flex;
+            gap: 20px;
+            color: #54688a;
+            margin: 5px 0 20px 0;
+            font-size: 17px;
+        }
+
+        .word-meaning {
+            color: #575a7b;
+            font-size: 20px;
+        }
+        .word-example {
+            color: #575a7b;
+            font-style: italic;
+            border-left: 5px solid #ae9cff;
+            padding-left: 20px;
+            margin-top: 20px;
+            font-size: 20px;
+		}
+        h4 {
+            color: #575a7b;
+            font-style: italic;
+            font-size: 17px;
+		}
+	</style>
+</head>
+
+<body>
+<div class="result" data-cmp-is="mycomponent" data-sly-use.myComponentobj="com.akqa.aem.training.aem201.core.models.MyComponentInterface">
+
+    <div data-sly-use.dictionarymodel="com.akqa.aem.training.aem201.core.models.DictionaryModel">
+        <h3 class="word" data-sly-test=${dictionarymodel.word}>${dictionarymodel.word}</h3>
+        <p class="type" data-sly-test=${dictionarymodel.type}>${dictionarymodel.type}</p>
+        <p class="word-meaning" data-sly-test=${dictionarymodel.meaning}>Meaning: ${dictionarymodel.meaning}</p>
+        <p class="word-example" data-sly-test=${dictionarymodel.sentence}>Sentence : ${dictionarymodel.sentence}</p>
+        <br><br><br>
+        <h4 data-sly-test=${dictionarymodel.time}>Last updated at time: ${dictionarymodel.time}</h4>
+        <br>
+    </div>
+
+</body>
+</html>
