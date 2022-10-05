@@ -18,7 +18,7 @@ import javax.jcr.Session;
 import java.util.*;
 @Model(adaptables = Resource.class)
 public class DictionaryModel {
-    private List<Node> list = new ArrayList<>();
+    private List<Node> nodesList = new ArrayList<>();
     private int randomNumber;
     public static int dictionarySize;
 
@@ -32,18 +32,17 @@ public class DictionaryModel {
         Session session = resourceResolver.adaptTo(Session.class);
 
         try {
-            Node dictionary = session.getNode("/dictionarydata/dictionary1");
+            Node dictionary = session.getNode("/dictionarydata/dictionary1"); // fetching the dictionary node
+            NodeIterator nodeIterator = dictionary.getNodes();
 
-            NodeIterator itr = dictionary.getNodes();
-
-            while(itr.hasNext()) {
-                list.add(itr.nextNode());
-            }
-            dictionarySize = list.size();
+            while(nodeIterator.hasNext()) {
+                nodesList.add(nodeIterator.nextNode()); // adding all nodes in a List so that we can get a random index.
+            }                                           // here you can do CRUD operations at the node.
+            dictionarySize = nodesList.size();
             String tempName;
             do {
-                randomNumber = DictionaryScheduler.randomIndex;
-                tempName = list.get(randomNumber).getName();
+                randomNumber = DictionaryScheduler.randomIndex;     // fetching a ranndomIndex with the help of scheduler
+                tempName = nodesList.get(randomNumber).getName();   // avoiding the "jcr:content" node
             }
             while((tempName.equals("jcr:content")));
         } catch (Exception e) {
@@ -56,7 +55,7 @@ public class DictionaryModel {
     }
     public String getWord() throws RepositoryException {
         try {
-            return list.get(randomNumber).getProperty("jcr:title").getValue().toString();
+            return nodesList.get(randomNumber).getProperty("jcr:title").getValue().toString();
         }
         catch (Exception e) {
             logger.error(e.getMessage());
@@ -65,7 +64,7 @@ public class DictionaryModel {
     }
     public String getType() throws RepositoryException {
         try {
-            return list.get(randomNumber).getProperty("type").getValue().toString();
+            return nodesList.get(randomNumber).getProperty("type").getValue().toString();
         }
         catch (Exception e) {
             logger.error(e.getMessage());
@@ -74,7 +73,7 @@ public class DictionaryModel {
     }
     public String getMeaning() throws RepositoryException {
         try {
-            return list.get(randomNumber).getProperty("meaning").getValue().toString();
+            return nodesList.get(randomNumber).getProperty("meaning").getValue().toString();
         }
         catch (Exception e) {
             logger.error(e.getMessage());
@@ -83,7 +82,7 @@ public class DictionaryModel {
     }
     public String getSentence() throws RepositoryException {
         try {
-            return list.get(randomNumber).getProperty("sentence").getValue().toString();
+            return nodesList.get(randomNumber).getProperty("sentence").getValue().toString();
         }
         catch (Exception e) {
             logger.error(e.getMessage());
