@@ -48,20 +48,19 @@ public class DictionaryScheduler implements Runnable {
     public static String wordUpdatedTime;
     private Queue<Integer> queue = new ArrayDeque<>();
 
-    @Override
-    public void run() {
+    @Override //runs every one minute
+    public void run()  {
         do {
             randomIndex = (int)(Math.random()*DictionaryModel.dictionarySize);
         } while(queue.contains(randomIndex));
 
-        // word will not be repeated if it has been showed in  previous last 10 words.
+        // word will not be repeated if it has been showed in the last 10 enteries.
         queue.add(randomIndex);
-
         if(queue.size()>10) {
             queue.remove();
         }
-
-        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
+        // to note that at what time the word was stored
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
         wordUpdatedTime = formatter.format(date);
     }
