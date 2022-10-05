@@ -48,23 +48,26 @@ public class DictionaryImportServlet extends SlingSafeMethodsServlet {
         final Resource resource = req.getResource();
 
         resp.setContentType("text/plain");
-        resp.getWriter().write("Title = " + resource.getValueMap().get(JcrConstants.JCR_TITLE));
+        resp.getWriter().write("Title = " + resource.getValueMap().get(JcrConstants.JCR_TITLE) + " success");
 
         //Create a Session
         Session session = resource.getResourceResolver().adaptTo(Session.class);
         try {
             final Csv csv = new Csv();
-            Resource res = resource.getResourceResolver().getResource("/content/dam/sourav-dam/my.csv");
+            Resource res = resource.getResourceResolver().getResource("/content/dam/sourav-dam/my.csv"); // from DAM storage
             Asset asset = res.adaptTo(Asset.class);
             Rendition rendition = asset.getOriginal();
             InputStream inputStream = rendition.adaptTo(InputStream.class);
             final Iterator<String[]> rows = csv.read(inputStream, "UTF-8");
             if (Objects.nonNull(session) && session.nodeExists(BASE_PATH)) {
-                final Node rootNode = session.getNode(BASE_PATH); // node at specified path
+                final Node rootNode = session.getNode(BASE_PATH); // fetching node at where we need to add the data
                 JcrUtils.getOrAddNode(rootNode, JcrConstants.JCR_CONTENT, JcrConstants.NT_UNSTRUCTURED);
 
+                // map for which property lie at which index of csv
                 headerRowPropertyMap = new HashMap<>();
+                // map for words to its properties
                 dictionaryMap = new HashMap<>();
+                // for checking whether the first row(header) of the CSV is stored or not
                 flag = true;
 
                 rows.forEachRemaining(row -> {
@@ -74,9 +77,7 @@ public class DictionaryImportServlet extends SlingSafeMethodsServlet {
                     if(flag) {
                         headerRowPropertyMap.put(0, "jcr:title"); // wordName is added as the title property
                         for(int index = 1; index<dataList.size(); index++) {
-                            String property = dataList.get(index);
-                            headerRowPropertyMap.put(index, property);
-                            log(index + " " + dataList.get(index));
+                            headerRowPropertyMap.put(index, dataList.get(index));
                         }
                         // if header is stored then toggle so that next time we can store words
                         toggleFlag();
@@ -84,7 +85,7 @@ public class DictionaryImportServlet extends SlingSafeMethodsServlet {
                         fillMap(dataList);
                     }
                 });
-
+                // importing words into a specific node
                 for(String word : dictionaryMap.keySet()) {
                     try {
                         importWords(word, dictionaryMap.get(word), rootNode);
@@ -101,19 +102,19 @@ public class DictionaryImportServlet extends SlingSafeMethodsServlet {
 
     // filling the word and it's properties
     private void fillMap(List<String> row) {
-        Map<String, String> tempMap = new HashMap<>();
+        Map<String, String> tempMap = new HashMap<>(); // temporary map for mapping the properties
         for(int index=0; index < row.size(); index++) {
             tempMap.put(headerRowPropertyMap.get(index), row.get(index));
         }
-        dictionaryMap.put(row.get(0), tempMap);
+        dictionaryMap.put(row.get(0), tempMap); // adding the tempMap(this word's properties) infront of itself
     }
 
     // importing words into a specific node
     private void importWords(String word, Map<String, String> map, Node dictionaryNode) {
         try {
-            final Node wordNode = JcrUtils.getOrAddNode(dictionaryNode, word, JcrConstants.NT_UNSTRUCTURED);
+            final Node wordNode = JcrUtils.getOrAddNode(dictionaryNode, word, JcrConstants.NT_UNSTRUCTURED); // creating a node for a specific word
             for(String property : map.keySet()) {
-                wordNode.setProperty(property, map.get(property));
+                wordNode.setProperty(property, map.get(property));  // adding its properties
             }
         } catch (RepositoryException e) {
             log("Error: ", e);
